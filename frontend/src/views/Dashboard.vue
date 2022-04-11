@@ -1,5 +1,14 @@
 <template>
   <v-container>
+    <v-row>
+      <v-col>
+        <v-spacer />
+        <v-btn @click="logoutUser">
+          Logout
+          <v-icon>mdi mdi-exit-to-app</v-icon>
+        </v-btn>
+      </v-col>
+    </v-row>
     <v-row class="text-center">
       <v-col cols="12">
         <v-img
@@ -93,7 +102,7 @@
 
 <script>
   export default {
-    name: 'HelloWorld',
+    name: 'Dashboard',
 
     data: () => ({
       ecosystem: [
@@ -147,5 +156,11 @@
         },
       ],
     }),
+    methods: {
+      logoutUser() {
+        this.$store.dispatch("LOG_OUT_USER");
+        this.$router.go();
+      }
+    }
   }
 </script>
