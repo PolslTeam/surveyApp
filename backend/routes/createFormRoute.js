@@ -44,7 +44,6 @@ router.post('/createForm', async (req, res) => {
                     continue;
 
                 case 'slider':
-                    console.log(props);
                     if(isNaN(field.min) || isNaN(field.max) || field.min < 0 || field.max < 0 || field.max - field.min < 1)
                         return res.status(400).json({badField: form_pos, message: 'Provide correct min/max values'});
 
