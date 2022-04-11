@@ -8,7 +8,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     form_id: {
       type: DataTypes.UUID,
-      allowNull: true,
+      allowNull: false,
       references: {
         model: 'Forms',
         key: 'form_id'
@@ -20,11 +20,11 @@ module.exports = function(sequelize, DataTypes) {
     },
     question: {
       type: DataTypes.STRING(255),
-      allowNull: true
+      allowNull: false
     },
     form_pos: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: false
     },
     required: {
       type: DataTypes.BOOLEAN,
