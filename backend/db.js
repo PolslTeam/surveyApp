@@ -7,4 +7,6 @@ sequelize.authenticate()
   .then(() => console.log("Successfully connected to DB"))
   .catch(err => console.log(err));
 
-module.exports = initModels(sequelize);
+initModels(sequelize);
+
+module.exports = sequelize;
