@@ -6,10 +6,10 @@ import formsStore from "./modules/formsStore";
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
-    modules: {
-        userStore,
-        formsStore
-    }
+  modules: {
+    userStore,
+    formsStore
+  }
 });
 
 export default store;

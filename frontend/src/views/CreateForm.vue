@@ -126,7 +126,7 @@ export default {
       return new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
         .toISOString()
         .substr(0, 10);
-    },
+    }
   },
   methods: {
     create() {
@@ -152,7 +152,7 @@ export default {
     },
     async getForm(formId) {
       await this.$store.dispatch("GET_FORM", formId);
-    },
+    }
   }
 };
 </script>

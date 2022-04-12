@@ -38,9 +38,7 @@ export default {
   },
   data() {
     return {
-      settings: [
-        { field: "min_length", label: "minimum length", defValue: 3 },
-      ]
+      settings: [{ field: "min_length", label: "minimum length", defValue: 3 }]
     };
   }
 };

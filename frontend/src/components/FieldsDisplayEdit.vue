@@ -33,11 +33,9 @@
                 />
                 <FieldChoiceEdit
                   v-else-if="
-                    [
-                      'single choice',
-                      'SingleChoice',
-                      'list'
-                    ].includes(field.type)
+                    ['single choice', 'SingleChoice', 'list'].includes(
+                      field.type
+                    )
                   "
                   :field="field"
                 />

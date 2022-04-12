@@ -18,7 +18,7 @@ export default {
       } else {
         state.userForms.push(form);
       }
-    },
+    }
   },
   actions: {
     async GET_FORM(context, formId) {
@@ -48,6 +48,6 @@ export default {
       } catch (e) {
         console.log(e);
       }
-    },
-  },
+    }
+  }
 };
