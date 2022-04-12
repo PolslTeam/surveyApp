@@ -89,7 +89,7 @@
                 </v-btn>
               </v-btn-toggle>
             </div>
-            <FieldsDisplayEdit :fields="fields" />
+            <FieldsDisplayEdit :fields="fields" :error="error" />
           </v-card-text>
         </v-card>
       </v-col>
@@ -110,7 +110,7 @@ export default {
         authenticationType: "",
         start_date: null,
         end_date: null,
-        answerLimit: null
+        answer_limit: null,
       },
       numberOfTokens: null,
       fields: [],
@@ -118,7 +118,8 @@ export default {
       settingsDates: [
         { field: "start_date", label: "set opening date" },
         { field: "end_date", label: "set closing date" }
-      ]
+      ],
+      error: {},
     };
   },
   computed: {
@@ -139,8 +140,11 @@ export default {
               ? this.numberOfTokens
               : null
         })
-        .then(() => {
-          // this.$router.push({ name: "Dashboard" }); // TODO: Dashboard
+        .then(err => {
+          if(err)
+            this.error = err?.response?.data || {};
+          // else
+          //  this.$router.push({ name: "Dashboard" }); // TODO
         });
     },
     addField(type) {

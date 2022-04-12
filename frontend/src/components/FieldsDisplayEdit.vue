@@ -40,6 +40,7 @@
                   :field="field"
                 />
                 <p v-else>{{ field.type }} type not handled</p>
+                <p v-if="error && error.form_pos == idx" class="red--text">{{error.message}}</p>
               </v-col>
             </v-row>
           </v-card-text>
@@ -57,7 +58,8 @@ export default {
   components: { FieldTextEdit, FieldSliderEdit, FieldChoiceEdit },
   name: "FieldsDisplayEdit",
   props: {
-    fields: Array
+    fields: Array,
+    error: Object
   },
   methods: {
     removeField(idx) {
