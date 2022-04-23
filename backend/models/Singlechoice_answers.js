@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('Singlechoice_answers', {
-    singleChoice_answer_id: {
+    singlechoice_answer_id: {
       type: DataTypes.UUID,
       allowNull: false,
       defaultValue: DataTypes.UUIDV4,
@@ -14,7 +14,7 @@ module.exports = function(sequelize, DataTypes) {
         key: 'answer_id'
       }
     },
-    choice_id: {
+    answer: {
       type: DataTypes.UUID,
       allowNull: true,
       references: {
@@ -22,7 +22,7 @@ module.exports = function(sequelize, DataTypes) {
         key: 'option_id'
       }
     },
-    singlechoice_field_id: {
+    field_id: {
       type: DataTypes.UUID,
       allowNull: true,
       references: {
@@ -40,7 +40,7 @@ module.exports = function(sequelize, DataTypes) {
         name: "Singlechoice_answers_pkey",
         unique: true,
         fields: [
-          { name: "singleChoice_answer_id" },
+          { name: "singlechoice_answer_id" },
         ]
       },
     ]
