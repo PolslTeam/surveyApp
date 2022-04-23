@@ -8,7 +8,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     user_id: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'Users',
         key: 'user_id'
@@ -24,7 +24,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     title: {
       type: DataTypes.STRING(255),
-      allowNull: false
+      allowNull: true
     },
     description: {
       type: DataTypes.STRING(255),

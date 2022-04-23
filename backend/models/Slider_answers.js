@@ -14,7 +14,7 @@ module.exports = function(sequelize, DataTypes) {
         key: 'answer_id'
       }
     },
-    slider_field_id: {
+    field_id: {
       type: DataTypes.UUID,
       allowNull: true,
       references: {

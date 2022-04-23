@@ -6,9 +6,9 @@ module.exports = function(sequelize, DataTypes) {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true
     },
-    singleChoice_answer_id: {
+    singlechoice_field_id: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'Singlechoice_fields',
         key: 'singlechoice_field_id'
@@ -16,11 +16,11 @@ module.exports = function(sequelize, DataTypes) {
     },
     option: {
       type: DataTypes.STRING(255),
-      allowNull: false
+      allowNull: true
     },
     option_pos: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: true
     }
   }, {
     sequelize,
