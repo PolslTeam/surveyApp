@@ -1,6 +1,5 @@
 const router = require('express').Router(),
     db = require('../db'),
-    User = db.models.Users,
     Form = db.models.Forms,
     Text_field = db.models.Text_fields,
     Slider_field = db.models.Slider_fields,
@@ -73,7 +72,7 @@ router.post('/createForm', async (req, res) => {
                     }, { transaction });
                     await Object.entries(field.choices).forEach(async ([option_pos, option]) => {
                         await Choice_option.create({ 
-                            singleChoice_answer_id: singlechoice_field_id,
+                            singlechoice_field_id: singlechoice_field_id,
                             option_pos,
                             option
                         }, { transaction });
