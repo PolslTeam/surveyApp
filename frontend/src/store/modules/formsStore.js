@@ -3,7 +3,10 @@ import jwt_decode from "jwt-decode";
 
 export default {
   state: {
-    userForms: []
+    userForms: [],
+    form: {},
+    isFormLoading: true,
+    loginRequired: true
   },
   mutations: {
     setEditFormFields(state, res) {
@@ -18,6 +21,15 @@ export default {
       } else {
         state.userForms.push(form);
       }
+    },
+    setForm(state, form) {
+      state.form = form;
+    },
+    setIsFormLoading(state, isLoading) {
+      state.isFormLoading = isLoading;
+    },
+    setLoginRequired(state, isRequired) {
+      state.loginRequired = isRequired;
     }
   },
   actions: {
@@ -48,6 +60,44 @@ export default {
       } catch (e) {
         console.log(e);
         return e;
+      }
+    },
+    async SET_FORM(context, payload) {
+      try {
+        context.commit("setIsFormLoading", true);
+        const response = await Vue.prototype.backendApi.get(
+            `/survey/${payload.formId}`,
+            {
+              params: {
+                anonToken: payload?.anonToken
+              },
+              headers: {
+                "x-auth-token": sessionStorage.getItem("loginToken")
+              }
+            }
+        );
+        context.commit("setForm", response.data);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        context.commit("setIsFormLoading", false);
+      }
+    },
+    async CREATE_SURVEY(context, payload) {
+      try {
+        await Vue.prototype.backendApi.post("/survey", payload);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async CHECK_SURVEY_TYPE(context, formId) {
+      try {
+        const response = await Vue.prototype.backendApi.get(
+            `/survey/${formId}/type`
+        );
+        context.commit("setLoginRequired", response.data);
+      } catch (e) {
+        console.log(e);
       }
     }
   }
