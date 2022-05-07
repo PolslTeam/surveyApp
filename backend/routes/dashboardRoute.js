@@ -9,7 +9,8 @@ router.get('/getUserForms', async (req, res) => {
         const user_id = req.query.id;
         const forms = await Forms.findAll({
             where: {
-                user_id
+                user_id,
+                is_archived: false
             }
         });
         res.json({forms});
@@ -61,5 +62,29 @@ router.patch('/blockResumeForm', async (req, res) => {
         res.status(500).json({error: e.message});
     }
 });
+
+router.put("/archiveForm", async(req,res) => {
+
+    const transaction = await db.transaction();
+
+    try{
+        const {formId} = req.body;
+        const form = await Forms.findOne({
+            where: {
+                form_id: formId
+            }
+        });
+        form.is_archived = !form.is_archived;
+        await form.save({transaction});
+        await transaction.commit();
+        if (form.is_archived) {
+            res.json("archived");
+        }
+    } catch (e){
+        await transaction.rollback();
+        console.log(e);
+        res.status(500).json({error: e.message});
+    }
+})
 
 module.exports = router;
