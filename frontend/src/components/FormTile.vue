@@ -46,7 +46,16 @@
               >
             </v-col>
             <v-col>
-              <v-btn @click="goToSurvey" text>View survey</v-btn>
+              <v-btn
+                color="warning"
+                :disabled="!allowBlockResume"
+                @click="blockResume(survey.form_id)"
+              >
+                {{ survey.is_active ? "Block" : "Resume" }} form
+              </v-btn>
+            </v-col>
+            <v-col>
+              <v-btn @click="goToSurvey" text>View form</v-btn>
             </v-col>
             <v-col>
               <v-btn @click="copyLink" text>
@@ -144,6 +153,9 @@ export default {
         return "Survey is active";
       }
       return "Survey is currently blocked";
+    },
+    async blockResume(formId) {
+      await this.$store.dispatch("BLOCK_RESUME_FORM", formId);
     }
   },
   computed: {
