@@ -1,9 +1,5 @@
 <template>
   <v-container>
-    <v-btn @click="logoutUser">
-      Logout
-      <v-icon>mdi mdi-exit-to-app</v-icon>
-    </v-btn>
     <v-row>
       <v-col align="center" md="6" cols="12">
         <h1>
@@ -51,10 +47,6 @@ export default {
     },
     async getFilledForms() {
       await this.$store.dispatch("GET_FILLED_FORMS");
-    },
-    logoutUser() {
-      this.$store.dispatch("LOG_OUT_USER");
-      this.$router.go();
     }
   },
   mounted() {
@@ -75,7 +67,7 @@ export default {
 </script>
 <style>
 .dashboard-main {
-  height: calc(100vh - 100px);
+  height: calc(100vh - 130px);
   overflow-y: auto;
 }
 </style>

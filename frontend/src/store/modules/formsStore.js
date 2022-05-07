@@ -16,7 +16,7 @@ export default {
     },
     addForm(state, form) {
       const foundForm = state.userForms.findIndex(
-        existingForm => existingForm._id === form._id
+        existingForm => existingForm.form_id === form.form_id
       );
       if (foundForm >= 0) {
         state.userForms[foundForm] = form;
