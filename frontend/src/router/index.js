@@ -28,7 +28,7 @@ const routes = [
     path: "/survey/:formId",
     name: "FillSurvey",
     component: () => import("../views/FillSurvey")
-  },
+  }
 ];
 
 const router = new VueRouter({
@@ -64,7 +64,10 @@ router.beforeEach(async (to, from, next) => {
     }
     isAuthenticated = response;
   }
-  if (to.name === "Register" && !isAuthenticated) next();
+  if (to.name === "FillSurvey") {
+    to.params.loggedIn = isAuthenticated;
+    next();
+  } else if (to.name === "Register" && !isAuthenticated) next();
   else if (to.name !== "Login" && !isAuthenticated) next({ name: "Login" });
   else next();
 });

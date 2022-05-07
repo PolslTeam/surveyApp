@@ -35,9 +35,16 @@
             </v-container>
           </v-card-text>
         </v-col>
-        <v-col cols="12" sm="12" md="12" lg="4" align="right">
+        <v-col
+          cols="12"
+          sm="12"
+          md="12"
+          lg="4"
+          align="right"
+          style="padding: 20px 40px 0 0"
+        >
           <v-row>
-            <v-col>
+            <v-col cols="6" sm="3" md="6" lg="12">
               <v-btn
                 :disabled="!availableTokens"
                 color="accent"
@@ -45,7 +52,7 @@
                 >Tokens</v-btn
               >
             </v-col>
-            <v-col>
+            <v-col cols="6" sm="3" md="6" lg="12">
               <v-btn
                 color="warning"
                 :disabled="!allowBlockResume"
@@ -54,10 +61,10 @@
                 {{ survey.is_active ? "Block" : "Resume" }} form
               </v-btn>
             </v-col>
-            <v-col>
+            <v-col cols="6" sm="3" md="6" lg="12">
               <v-btn @click="goToSurvey" text>View form</v-btn>
             </v-col>
-            <v-col>
+            <v-col cols="6" sm="3" md="6" lg="12">
               <v-btn @click="copyLink" text>
                 <v-icon>mdi mdi-content-copy</v-icon> copy link
               </v-btn>
