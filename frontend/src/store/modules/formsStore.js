@@ -44,6 +44,11 @@ export default {
     },
     resetTokenList(state) {
       state.tokenList = [];
+    },
+    switchForm(state, formId) {
+      const form = state.userForms.find(form => form.form_id === formId);
+      form.is_active = !form.is_active;
+      state.userForms = [...state.userForms];
     }
   },
   actions: {
@@ -149,6 +154,26 @@ export default {
           });
       } catch (e) {
         console.log(e);
+      }
+    },
+    async BLOCK_RESUME_FORM(context, formId) {
+      try {
+        const id = jwt_decode(sessionStorage.getItem("loginToken")).id;
+        const response = await Vue.prototype.backendApi.patch(
+          "/blockResumeForm",
+          {
+            data: {
+              formId,
+              id
+            }
+          }
+        );
+        if (response.data.switched) {
+          context.commit("switchForm", formId);
+        }
+      } catch (e) {
+        console.log(e);
+        throw "error";
       }
     }
   },
