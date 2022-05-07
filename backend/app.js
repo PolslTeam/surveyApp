@@ -10,6 +10,8 @@ app.use(cors());
 app.use('/api', require('./routes/userRoute'));
 app.use('/api', require('./routes/createFormRoute'));
 app.use('/api', require('./routes/surveyRoute'));
+app.use('/api', require('./routes/dashboardRoute'));
+app.use('/api', require('./routes/tokensRoute'));
 
 app.get('/api', (req, res) => {
   res.send('Hello :)');
