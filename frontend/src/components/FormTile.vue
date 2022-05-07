@@ -62,6 +62,38 @@
               </v-btn>
             </v-col>
             <v-col cols="6" sm="3" md="6" lg="12">
+              <v-dialog persistent max-width="600">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn color="error" v-bind="attrs" v-on="on">
+                    Remove form
+                  </v-btn>
+                </template>
+                <template v-slot:default="dialog">
+                  <v-card>
+                    <v-card-title style="background-color: #ff5252;">
+                      <h3>Confirm</h3>
+                    </v-card-title>
+                    <v-card-text align="center">
+                      <p style="padding-top: 40px;">
+                        After removing survey <b>you will loose access</b> to
+                        it.
+                      </p>
+                    </v-card-text>
+                    <v-card-actions class="justify-end">
+                      <v-btn text @click="dialog.value = false">Close</v-btn>
+                      <v-btn
+                        text
+                        color="error"
+                        @click="archiveForm(survey.form_id)"
+                      >
+                        Remove
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </template>
+              </v-dialog>
+            </v-col>
+            <v-col cols="6" sm="3" md="6" lg="12">
               <v-btn @click="goToSurvey" text>View form</v-btn>
             </v-col>
             <v-col cols="6" sm="3" md="6" lg="12">
@@ -163,6 +195,9 @@ export default {
     },
     async blockResume(formId) {
       await this.$store.dispatch("BLOCK_RESUME_FORM", formId);
+    },
+    async archiveForm(formId) {
+      await this.$store.dispatch("ARCHIVE_FORM", formId);
     }
   },
   computed: {

@@ -52,6 +52,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     is_archived: {
       type: DataTypes.BOOLEAN,
+      defaultValue: false,
       allowNull: true
     }
   }, {

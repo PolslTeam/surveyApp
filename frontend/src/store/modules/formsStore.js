@@ -49,6 +49,11 @@ export default {
       const form = state.userForms.find(form => form.form_id === formId);
       form.is_active = !form.is_active;
       state.userForms = [...state.userForms];
+    },
+    switchFormArchivedStatus(state, formId) {
+      state.userForms = state.userForms.filter(
+        existingForm => existingForm.form_id !== formId
+      );
     }
   },
   actions: {
@@ -171,6 +176,21 @@ export default {
         if (response.data.switched) {
           context.commit("switchForm", formId);
         }
+      } catch (e) {
+        console.log(e);
+        throw "error";
+      }
+    },
+    async ARCHIVE_FORM(context, formId) {
+      try {
+        await Vue.prototype.backendApi
+          .put("/archiveForm", { formId })
+          .then(res => {
+            context.commit("switchFormArchivedStatus", formId);
+            if (res.data === "archived") {
+              console.log("Survey archived");
+            }
+          });
       } catch (e) {
         console.log(e);
         throw "error";
