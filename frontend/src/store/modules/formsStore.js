@@ -4,9 +4,11 @@ import jwt_decode from "jwt-decode";
 export default {
   state: {
     userForms: [],
+    userFilledForms: [],
     form: {},
     isFormLoading: true,
-    loginRequired: true
+    loginRequired: true,
+    tokenList: []
   },
   mutations: {
     setEditFormFields(state, res) {
@@ -30,6 +32,18 @@ export default {
     },
     setLoginRequired(state, isRequired) {
       state.loginRequired = isRequired;
+    },
+    setUserForms(state, res) {
+      state.userForms = res.forms;
+    },
+    setFilledForms(state, res) {
+      state.userFilledForms = res.forms;
+    },
+    setTokenList(state, res) {
+      state.tokenList = res;
+    },
+    resetTokenList(state) {
+      state.tokenList = [];
     }
   },
   actions: {
@@ -66,15 +80,15 @@ export default {
       try {
         context.commit("setIsFormLoading", true);
         const response = await Vue.prototype.backendApi.get(
-            `/survey/${payload.formId}`,
-            {
-              params: {
-                anonToken: payload?.anonToken
-              },
-              headers: {
-                "x-auth-token": sessionStorage.getItem("loginToken")
-              }
+          `/survey/${payload.formId}`,
+          {
+            params: {
+              anonToken: payload?.anonToken
+            },
+            headers: {
+              "x-auth-token": sessionStorage.getItem("loginToken")
             }
+          }
         );
         context.commit("setForm", response.data);
       } catch (e) {
@@ -93,12 +107,60 @@ export default {
     async CHECK_SURVEY_TYPE(context, formId) {
       try {
         const response = await Vue.prototype.backendApi.get(
-            `/survey/${formId}/type`
+          `/survey/${formId}/type`
         );
         context.commit("setLoginRequired", response.data);
       } catch (e) {
         console.log(e);
       }
+    },
+    async GET_USER_FORMS(context) {
+      try {
+        const id = jwt_decode(sessionStorage.getItem("loginToken")).id;
+        const response = await Vue.prototype.backendApi.get("/getUserForms", {
+          params: { id }
+        });
+        context.commit("setUserForms", response.data);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async GET_FILLED_FORMS(context) {
+      try {
+        const id = jwt_decode(sessionStorage.getItem("loginToken")).id;
+        const response = await Vue.prototype.backendApi.get("/getFilledForms", {
+          params: { id }
+        });
+        context.commit("setFilledForms", response.data);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async GET_TOKENS(context, payload) {
+      try {
+        const formId = payload.formId;
+        context.commit("resetTokenList");
+        await Vue.prototype.backendApi
+          .get("/getTokens", {
+            params: { formId }
+          })
+          .then(res => {
+            context.commit("setTokenList", res.data);
+          });
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  },
+  getters: {
+    userSurveys(state) {
+      return state.userForms;
+    },
+    filledSurveys(state) {
+      return state.userFilledForms;
+    },
+    getTokens(state) {
+      return state.tokenList;
     }
   }
 };

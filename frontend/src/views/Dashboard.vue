@@ -1,166 +1,81 @@
 <template>
   <v-container>
+    <v-btn @click="logoutUser">
+      Logout
+      <v-icon>mdi mdi-exit-to-app</v-icon>
+    </v-btn>
     <v-row>
-      <v-col>
-        <v-spacer />
-        <v-btn @click="logoutUser">
-          Logout
-          <v-icon>mdi mdi-exit-to-app</v-icon>
-        </v-btn>
-      </v-col>
-    </v-row>
-    <v-row class="text-center">
-      <v-col cols="12">
-        <v-img
-          :src="require('../assets/logo.svg')"
-          class="my-3"
-          contain
-          height="200"
-        />
-      </v-col>
-
-      <v-col class="mb-4">
-        <h1 class="display-2 font-weight-bold mb-3">
-          Welcome to Vuetify
+      <v-col align="center" md="6" cols="12">
+        <h1>
+          Your forms:
         </h1>
-
-        <p class="subheading font-weight-regular">
-          For help and collaboration with other Vuetify developers,
-          <br>please join our online
-          <a
-            href="https://community.vuetifyjs.com"
-            target="_blank"
-          >Discord Community</a>
-        </p>
+        <v-container class="dashboard-main">
+          <v-row>
+            <v-col>
+              <new-form-tile />
+            </v-col>
+          </v-row>
+          <v-row v-for="survey of userSurveys" :key="survey.form_id">
+            <v-col>
+              <form-tile :survey="survey" />
+            </v-col>
+          </v-row>
+        </v-container>
       </v-col>
-
-      <v-col
-        class="mb-5"
-        cols="12"
-      >
-        <h2 class="headline font-weight-bold mb-3">
-          What's next?
-        </h2>
-
-        <v-row justify="center">
-          <a
-            v-for="(next, i) in whatsNext"
-            :key="i"
-            :href="next.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ next.text }}
-          </a>
-        </v-row>
-      </v-col>
-
-      <v-col
-        class="mb-5"
-        cols="12"
-      >
-        <h2 class="headline font-weight-bold mb-3">
-          Important Links
-        </h2>
-
-        <v-row justify="center">
-          <a
-            v-for="(link, i) in importantLinks"
-            :key="i"
-            :href="link.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ link.text }}
-          </a>
-        </v-row>
-      </v-col>
-
-      <v-col
-        class="mb-5"
-        cols="12"
-      >
-        <h2 class="headline font-weight-bold mb-3">
-          Ecosystem
-        </h2>
-
-        <v-row justify="center">
-          <a
-            v-for="(eco, i) in ecosystem"
-            :key="i"
-            :href="eco.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ eco.text }}
-          </a>
-        </v-row>
+      <v-col align="center" md="6" cols="12">
+        <h1>
+          Forms filled by you:
+        </h1>
+        <v-container class="dashboard-main">
+          <v-row v-for="survey of filledSurveys" :key="survey.form_id">
+            <v-col>
+              <filled-form-tile :survey="survey" />
+            </v-col>
+          </v-row>
+        </v-container>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-  export default {
-    name: 'Dashboard',
-
-    data: () => ({
-      ecosystem: [
-        {
-          text: 'vuetify-loader',
-          href: 'https://github.com/vuetifyjs/vuetify-loader',
-        },
-        {
-          text: 'github',
-          href: 'https://github.com/vuetifyjs/vuetify',
-        },
-        {
-          text: 'awesome-vuetify',
-          href: 'https://github.com/vuetifyjs/awesome-vuetify',
-        },
-      ],
-      importantLinks: [
-        {
-          text: 'Documentation',
-          href: 'https://vuetifyjs.com',
-        },
-        {
-          text: 'Chat',
-          href: 'https://community.vuetifyjs.com',
-        },
-        {
-          text: 'Made with Vuetify',
-          href: 'https://madewithvuejs.com/vuetify',
-        },
-        {
-          text: 'Twitter',
-          href: 'https://twitter.com/vuetifyjs',
-        },
-        {
-          text: 'Articles',
-          href: 'https://medium.com/vuetify',
-        },
-      ],
-      whatsNext: [
-        {
-          text: 'Explore components',
-          href: 'https://vuetifyjs.com/components/api-explorer',
-        },
-        {
-          text: 'Select a layout',
-          href: 'https://vuetifyjs.com/getting-started/pre-made-layouts',
-        },
-        {
-          text: 'Frequently Asked Questions',
-          href: 'https://vuetifyjs.com/getting-started/frequently-asked-questions',
-        },
-      ],
-    }),
-    methods: {
-      logoutUser() {
-        this.$store.dispatch("LOG_OUT_USER");
-        this.$router.go();
-      }
+import FormTile from "../components/FormTile";
+import NewFormTile from "@/components/NewFormTile";
+import FilledFormTile from "../components/FilledFormTile";
+export default {
+  name: "Dashboard",
+  components: { FormTile, NewFormTile, FilledFormTile },
+  methods: {
+    async getUserForms() {
+      await this.$store.dispatch("GET_USER_FORMS");
+    },
+    async getFilledForms() {
+      await this.$store.dispatch("GET_FILLED_FORMS");
+    },
+    logoutUser() {
+      this.$store.dispatch("LOG_OUT_USER");
+      this.$router.go();
+    }
+  },
+  mounted() {
+    if (!this.userSurveys.length) {
+      this.getUserForms();
+    }
+    this.getFilledForms();
+  },
+  computed: {
+    userSurveys() {
+      return this.$store.getters.userSurveys;
+    },
+    filledSurveys() {
+      return this.$store.getters.filledSurveys;
     }
   }
+};
 </script>
+<style>
+.dashboard-main {
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+</style>
