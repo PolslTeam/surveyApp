@@ -78,7 +78,13 @@ export default {
             user_id
           })
           .then(res => {
-            // TODO: generate tokens if needed
+            if (payload.numberOfTokens != null) {
+              const formId = res.data.form_id;
+              context.dispatch("GENERATE_TOKENS", {
+                formId: formId,
+                numberOfTokens: payload.numberOfTokens
+              });
+            }
             context.commit("addForm", res.data);
           });
       } catch (e) {
@@ -159,6 +165,23 @@ export default {
           });
       } catch (e) {
         console.log(e);
+      }
+    },
+    async GENERATE_TOKENS(context, payload) {
+      try {
+        const formId = payload.formId,
+          numberOfTokens = payload.numberOfTokens;
+        await Vue.prototype.backendApi
+          .post("/generateTokens", {
+            formId,
+            numberOfTokens
+          })
+          .then(res => {
+            context.commit("setTokenList", res.data);
+          });
+      } catch (e) {
+        console.log(e);
+        throw "error";
       }
     },
     async BLOCK_RESUME_FORM(context, formId) {
