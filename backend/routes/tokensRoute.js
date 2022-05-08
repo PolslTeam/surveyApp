@@ -39,7 +39,7 @@ router.post("/generateTokens", async (req,res) => {
             const existingTokens = new Set(uniqueTokens)
             const eT = existingTokens.size + (numberOfTokens * 1)
             for (let i = 0; uniqueTokens.length < eT; i++) {
-                const token = Math.random().toString(36).substr(2);
+                const token = (Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2)).substring(0,16);
                 uniqueTokens.push(token);
                 uniqueTokens = uniqueTokens.filter((x, i, a) => a.indexOf(x) === i)
             }
