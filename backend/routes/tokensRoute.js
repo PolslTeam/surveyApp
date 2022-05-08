@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const { models } = require('../db'),
-    Tokens = models.Tokens
+db = require('../db')
+  Tokens = db.models.Tokens;
 
 router.get("/getTokens", async (req, res) => {
     try {
@@ -22,45 +22,22 @@ router.get("/getTokens", async (req, res) => {
 })
 
 router.post("/generateTokens", async (req,res) => {
+    const transaction = await db.transaction();
     try {
         const {formId, numberOfTokens} = req.body;
-        const tokens = await Tokens.findAll({
-            where: {
-                form_id: formId
-            }
-        });
-        if (numberOfTokens * 1 <= 10000) {
-            let uniqueTokens = [];
-            if (tokens) {
-                tokens.forEach(val => {
-                    uniqueTokens.push(val.token)
-                })
-            }
-            const existingTokens = new Set(uniqueTokens)
-            const eT = existingTokens.size + (numberOfTokens * 1)
-            for (let i = 0; uniqueTokens.length < eT; i++) {
-                const token = (Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2)).substring(0,16);
-                uniqueTokens.push(token);
-                uniqueTokens = uniqueTokens.filter((x, i, a) => a.indexOf(x) === i)
-            }
-            uniqueTokens = uniqueTokens.filter( el => !existingTokens.has( el ))
-            for (const item of uniqueTokens){
-                const token = {
-                    form_id: formId,
-                    token: item,
-                    used: false
-                };
-                await Tokens.create(token)
-            }
+           if (Number(numberOfTokens) < 100){
+            await Tokens.bulkCreate(new Array(numberOfTokens).fill({form_id: formId}))
+            await transaction.commit()
             return res
               .status(200)
-              .json(uniqueTokens);
+              .json(numberOfTokens > 1 ? "Token's generated successfully" : "Token generated successfully");
         } else {
             return res
               .status(400)
-              .json({message: `You can't generate more than 10000 tokens`});
+              .json({message: `You can't generate more than 100 tokens`});
         }
     } catch (e) {
+        await transaction.rollback()
         console.log(e.message);
         res.status(500).json({error: e.message});
     }

@@ -15,12 +15,14 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     token: {
-      type: DataTypes.CHAR(16),
-      allowNull: true
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      allowNull: false
     },
     used: {
       type: DataTypes.BOOLEAN,
-      allowNull: true
+      defaultValue: false,
+      allowNull: false
     }
   }, {
     sequelize,
