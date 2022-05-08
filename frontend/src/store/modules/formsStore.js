@@ -7,6 +7,8 @@ export default {
     userFilledForms: [],
     form: {},
     isFormLoading: true,
+    areMyAnswersLoading: true,
+    isAlreadyFilled: false,
     loginRequired: true,
     tokenList: []
   },
@@ -30,6 +32,12 @@ export default {
     setIsFormLoading(state, isLoading) {
       state.isFormLoading = isLoading;
     },
+    setAreMyAnswersLoading(state, isLoading) {
+      state.areMyAnswersLoading = isLoading;
+    },
+    setIsAlreadyFilled(state, isAlreadyFilled) {
+      state.isAlreadyFilled = isAlreadyFilled;
+    },
     setLoginRequired(state, isRequired) {
       state.loginRequired = isRequired;
     },
@@ -44,6 +52,19 @@ export default {
     },
     resetTokenList(state) {
       state.tokenList = [];
+    },
+    fillForm(state, answers) {
+      if (!state.form.fields) return;
+      for(const field of state.form.fields) {
+        const answer = answers.find(ans => [
+            field.text_field_id,
+            field.slider_field_id,
+            field.singlechoice_field_id,
+          ].includes(ans.field_id)
+        );
+        if(!answer) continue;
+        field.answer = answer.answer;
+      }
     },
     switchForm(state, formId) {
       const form = state.userForms.find(form => form.form_id === formId);
@@ -122,6 +143,30 @@ export default {
         context.commit("setLoginRequired", response.data);
       } catch (e) {
         console.log(e);
+      }
+    },
+    async GET_MY_ANSWERS(context, payload) {
+      try {
+        context.commit("setAreMyAnswersLoading", true);
+        const response = await Vue.prototype.backendApi.get(
+          `/survey/${payload.formId}/myAnswers`,
+          {
+            params: {
+              respondent: payload.respondent,
+              anonToken: payload.anonToken
+            },
+            headers: {
+              "x-auth-token": sessionStorage.getItem("loginToken")
+            }
+          }
+        );
+        context.commit("setIsAlreadyFilled", !!response.data.answers);
+        if (response.data.answers)
+          context.commit("fillForm", response.data.answers);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        context.commit("setAreMyAnswersLoading", false);
       }
     },
     async GET_USER_FORMS(context) {

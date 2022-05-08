@@ -4,7 +4,10 @@
       <v-col v-if="!isFormLoading && form.form_id" md="6">
         <v-row>
           <v-col>
-            <v-card v-if="!isFormLoading" class="px-3">
+            <v-card class="px-3">
+              <v-card-title v-if="isAlreadyFilled" class="justify-center red">
+                You already filled this form.
+              </v-card-title>
               <v-card-title class="justify-center text-h4">
                 {{ form.title }}
               </v-card-title>
@@ -39,15 +42,17 @@
                           <template v-if="'slider_field_id' in field">
                             <v-slider
                                 v-model="field.answer"
+                                :readonly="isAlreadyFilled"
                                 :min="field.min"
                                 :max="field.max"
-                                thumb-label
+                                :thumb-label="isAlreadyFilled ? 'always' : true"
                             ></v-slider>
                           </template>
                           <template v-if="'text_field_id' in field">
                             <v-text-field
                                 dense
                                 v-model="field.answer"
+                                :readonly="isAlreadyFilled"
                                 counter
                                 :maxlength="field.max_length"
                                 :rules="
@@ -71,6 +76,7 @@
                             <v-radio-group
                                 v-if="!field.is_list"
                                 v-model="field.answer"
+                                :readonly="isAlreadyFilled"
                                 required
                                 :rules="
                                 field.required ? [rules.radio] : []
@@ -87,6 +93,7 @@
                             <v-select
                                 v-else
                                 v-model="field.answer"
+                                :readonly="isAlreadyFilled"
                                 :items="field.options"
                                 item-value="option_id"
                                 item-text="option"
@@ -104,7 +111,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <v-btn @click="submit">Submit</v-btn>
+            <v-btn v-if="!isAlreadyFilled" @click="submit">Submit</v-btn>
           </v-col>
         </v-row>
       </v-col>
@@ -165,7 +172,7 @@ export default {
       const payload = {
         formId: this.$route.params.formId
       };
-      await this.$store.dispatch("SET_FORM", payload);
+      this.setForm(payload);
     } else {
       this.anonymous = true;
     }
@@ -176,7 +183,17 @@ export default {
         formId: this.$route.params.formId,
         anonToken: this.anonField
       };
-      this.$store.dispatch("SET_FORM", payload);
+      this.setForm(payload);
+    },
+    async setForm(payload) {
+      payload = {
+        ...payload,
+        respondent: this.anonymous
+          ? this.anonField
+          : sessionStorage.getItem("loginToken")
+      };
+      await this.$store.dispatch("SET_FORM", payload);
+      await this.$store.dispatch("GET_MY_ANSWERS", payload);
     },
     async submit() {
       await this.$refs.form.validate();
@@ -194,7 +211,9 @@ export default {
           };
         })
       };
-      await this.$store.dispatch("CREATE_SURVEY", payload);
+      await this.$store.dispatch("CREATE_SURVEY", payload).then(async () => {
+        await this.setForm({ formId: this.form.form_id });
+      });
     }
   },
   computed: {
@@ -204,8 +223,17 @@ export default {
     isFormLoading() {
       return this.$store.state.formsStore.isFormLoading;
     },
+    areMyAnswersLoading() {
+      return this.$store.state.formsStore.areMyAnswersLoading;
+    },
+    loading() {
+      return this.isFormLoading || this.areMyAnswersLoading;
+    },
     isLoginRequired() {
       return this.$store.state.formsStore.loginRequired;
+    },
+    isAlreadyFilled() {
+      return this.$store.state.formsStore.isAlreadyFilled;
     },
     lengthRule(min, max) {
       return [

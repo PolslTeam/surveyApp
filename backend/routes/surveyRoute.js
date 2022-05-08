@@ -78,6 +78,50 @@ router.get('/survey/:formId/type', async(req,res) => {
     }
 });
 
+router.get('/survey/:formId/myAnswers', async(req,res) => {
+    try {
+        const { formId: form_id } = req.params;
+        const { respondent } = req.query;
+        let user_id;
+        const form = await Form.findOne({where: {form_id}});
+  
+        if (!form) {
+            return res.status(404).json({message: "This survey doesn't exist"});
+        }
+  
+        if (form.login_required) {
+            const verified = jwt.verify(respondent, process.env.JWT_SECRET);
+            if (!verified) {
+                return res.status(403).json({message: "Not authorized"});
+            }
+            user_id = verified.id;
+        } else {
+            //TO-DO Anon validation
+        }
+  
+        const filledSurvey = await Survey.findOne({
+            where: { form_id, user_id }
+        });
+  
+        if(!filledSurvey) {
+            // return res.status(404).json({message: "You never filled this survey"});
+            return res.status(200).json({});
+        }
+
+        const query = {where: {answer_id: filledSurvey.dataValues.answer_id}};
+        const answers = [
+            ...await Textfield_answer.findAll(query),
+            ...await Slider_answer.findAll(query),
+            ...await Singlechoice_answer.findAll(query),
+        ];
+        
+        return res.status(200).json({answers});
+  
+    } catch (e) {
+        console.log(e.message);
+        res.status(500).json({error: e.message});
+    }
+  });
 
 router.get('/survey/:formId', async(req,res) => {
     try {
