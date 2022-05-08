@@ -79,7 +79,7 @@
                               <v-radio
                                   v-for="(choice, index) in field.options"
                                   :key="index"
-                                  :value="index"
+                                  :value="choice.option_id"
                                   :label="choice.option"
                               >
                               </v-radio>
