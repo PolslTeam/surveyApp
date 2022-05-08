@@ -23,16 +23,16 @@
           <v-col>
             <v-form ref="form" v-model="validForm" lazy-validation>
               <v-row
-                  v-for="(field, index) in form.fields"
-                  :key="field._id"
-                  justify="center"
+                v-for="(field, index) in form.fields"
+                :key="field._id"
+                justify="center"
               >
                 <v-col>
                   <v-card class="px-3">
                     <v-card-title>
                       {{ index + 1 }}.
                       {{ field.question }}
-                      <span v-if="field.isAnswerRequired" class="red--text">
+                      <span v-if="field.required" class="red--text">
                         &nbsp;*
                       </span>
                     </v-card-title>
@@ -41,21 +41,21 @@
                         <v-col md="6">
                           <template v-if="'slider_field_id' in field">
                             <v-slider
-                                v-model="field.answer"
-                                :readonly="isAlreadyFilled"
-                                :min="field.min"
-                                :max="field.max"
-                                :thumb-label="isAlreadyFilled ? 'always' : true"
+                              v-model="field.answer"
+                              :readonly="isAlreadyFilled"
+                              :min="field.min"
+                              :max="field.max"
+                              :thumb-label="isAlreadyFilled ? 'always' : true"
                             ></v-slider>
                           </template>
                           <template v-if="'text_field_id' in field">
                             <v-text-field
-                                dense
-                                v-model="field.answer"
-                                :readonly="isAlreadyFilled"
-                                counter
-                                :maxlength="field.max_length"
-                                :rules="
+                              dense
+                              v-model="field.answer"
+                              :readonly="isAlreadyFilled"
+                              counter
+                              :maxlength="field.max_length"
+                              :rules="
                                 field.required
                                   ? [
                                       rules.general,
@@ -74,30 +74,28 @@
                           </template>
                           <template v-if="'singlechoice_field_id' in field">
                             <v-radio-group
-                                v-if="!field.is_list"
-                                v-model="field.answer"
-                                :readonly="isAlreadyFilled"
-                                required
-                                :rules="
-                                field.required ? [rules.radio] : []
-                              "
+                              v-if="!field.is_list"
+                              v-model="field.answer"
+                              :readonly="isAlreadyFilled"
+                              required
+                              :rules="field.required ? [rules.radio] : []"
                             >
                               <v-radio
-                                  v-for="(choice, index) in field.options"
-                                  :key="index"
-                                  :value="choice.option_id"
-                                  :label="choice.option"
+                                v-for="(choice, index) in field.options"
+                                :key="index"
+                                :value="choice.option_id"
+                                :label="choice.option"
                               >
                               </v-radio>
                             </v-radio-group>
                             <v-select
-                                v-else
-                                v-model="field.answer"
-                                :readonly="isAlreadyFilled"
-                                :items="field.options"
-                                item-value="option_id"
-                                item-text="option"
-                                :rules="field.required ? [rules.general] : []"
+                              v-else
+                              v-model="field.answer"
+                              :readonly="isAlreadyFilled"
+                              :items="field.options"
+                              item-value="option_id"
+                              item-text="option"
+                              :rules="field.required ? [rules.general] : []"
                             ></v-select>
                           </template>
                         </v-col>
@@ -159,13 +157,13 @@ export default {
       const token = sessionStorage.getItem("loginToken");
       if (token) {
         response = await Vue.prototype.backendApi.post(
-            "/token-validation",
-            {},
-            {
-              headers: {
-                "x-auth-token": token
-              }
+          "/token-validation",
+          {},
+          {
+            headers: {
+              "x-auth-token": token
             }
+          }
         );
       }
       if (!response) await this.$router.push({ name: "Login" });
@@ -201,12 +199,20 @@ export default {
       const payload = {
         formId: this.form.form_id,
         respondent: this.anonymous
-            ? this.anonField
-            : sessionStorage.getItem("loginToken"),
+          ? this.anonField
+          : sessionStorage.getItem("loginToken"),
         answers: this.form.fields.map(field => {
           return {
-            type: field.singlechoice_field_id ? "choice" : field.text_field_id ? "text" : "slider",
-            field_id: field.singlechoice_field_id ? field.singlechoice_field_id : field.text_field_id ? field.text_field_id : field.slider_field_id,
+            type: field.singlechoice_field_id
+              ? "choice"
+              : field.text_field_id
+              ? "text"
+              : "slider",
+            field_id: field.singlechoice_field_id
+              ? field.singlechoice_field_id
+              : field.text_field_id
+              ? field.text_field_id
+              : field.slider_field_id,
             answer: field.answer
           };
         })
