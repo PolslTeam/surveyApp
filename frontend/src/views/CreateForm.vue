@@ -143,8 +143,8 @@ export default {
         .then(err => {
           if(err)
             this.error = err?.response?.data || {};
-          // else
-          //  this.$router.push({ name: "Dashboard" }); // TODO
+          else
+           this.$router.push({ name: "Dashboard" });
         });
     },
     addField(type) {
