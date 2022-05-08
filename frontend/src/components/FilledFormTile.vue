@@ -8,6 +8,7 @@
       <p style="text-align: start; width: 100%;">
         Description: {{ survey.form.description }}
       </p>
+      <v-btn @click="goToSurvey" text>View form</v-btn>
     </v-card-title>
   </v-card>
 </template>
@@ -18,6 +19,16 @@ export default {
     survey: {
       type: Object,
       required: true
+    }
+  },
+  methods: {
+    goToSurvey() {
+      this.$router.push({
+        name: "FillSurvey",
+        params: {
+          formId: this.survey.form_id
+        }
+      });
     }
   }
 };
