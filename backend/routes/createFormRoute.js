@@ -70,13 +70,12 @@ router.post('/createForm', async (req, res) => {
                         is_list: field.type === 'list',
                         ...props
                     }, { transaction });
-                    await Object.entries(field.choices).forEach(async ([option_pos, option]) => {
+                    for(const [option_pos, option] of Object.entries(field.choices))
                         await Choice_option.create({ 
-                            singlechoice_field_id: singlechoice_field_id,
+                            singlechoice_field_id,
                             option_pos,
                             option
                         }, { transaction });
-                    })
                     continue;
 
                 default:
