@@ -110,7 +110,7 @@ export default {
         authenticationType: "",
         start_date: null,
         end_date: null,
-        answer_limit: null,
+        answer_limit: null
       },
       numberOfTokens: null,
       fields: [],
@@ -119,7 +119,7 @@ export default {
         { field: "start_date", label: "set opening date" },
         { field: "end_date", label: "set closing date" }
       ],
-      error: {},
+      error: {}
     };
   },
   computed: {
@@ -141,10 +141,8 @@ export default {
               : null
         })
         .then(err => {
-          if(err)
-            this.error = err?.response?.data || {};
-          else
-           this.$router.push({ name: "Dashboard" });
+          if (err) this.error = err?.response?.data || {};
+          else this.$router.push({ name: "Dashboard" });
         });
     },
     addField(type) {
