@@ -30,7 +30,7 @@ router.post("/generateTokens", async (req,res) => {
             await transaction.commit()
             return res
               .status(200)
-              .json(numberOfTokens > 1 ? "Token's generated successfully" : "Token generated successfully");
+              .json(numberOfTokens > 1 ? "Tokens generated successfully" : "Token generated successfully");
         } else {
             return res
               .status(400)
