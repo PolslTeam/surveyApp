@@ -87,7 +87,11 @@ export default {
         });
         context.commit("setEditFormFields", response.data);
       } catch (e) {
-        console.log(e);
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
       }
     },
     async CREATE_FORM(context, payload) {
@@ -108,10 +112,19 @@ export default {
               });
             }
             context.commit("addForm", res.data);
+            context.commit("POST_ERROR", {
+              status: "success",
+              message: "Survey created successfully",
+              timestamp: Date.now()
+            });
           });
       } catch (e) {
-        console.log(e);
-        return e;
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
+        throw "error";
       }
     },
     async SET_FORM(context, payload) {
@@ -130,7 +143,11 @@ export default {
         );
         context.commit("setForm", response.data);
       } catch (e) {
-        console.log(e);
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
       } finally {
         context.commit("setIsFormLoading", false);
       }
@@ -138,8 +155,17 @@ export default {
     async CREATE_SURVEY(context, payload) {
       try {
         await Vue.prototype.backendApi.post("/survey", payload);
+        context.commit("POST_ERROR", {
+          status: "success",
+          message: "Answers saved",
+          timestamp: Date.now()
+        });
       } catch (e) {
-        console.log(e);
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: "Answers not saved",
+          timestamp: Date.now()
+        });
       }
     },
     async CHECK_SURVEY_TYPE(context, formId) {
@@ -171,7 +197,11 @@ export default {
         if (response.data.answers)
           context.commit("fillForm", response.data.answers);
       } catch (e) {
-        console.log(e);
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
       } finally {
         context.commit("setAreMyAnswersLoading", false);
       }
@@ -184,7 +214,11 @@ export default {
         });
         context.commit("setUserForms", response.data);
       } catch (e) {
-        console.log(e);
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
       }
     },
     async GET_FILLED_FORMS(context) {
@@ -195,7 +229,11 @@ export default {
         });
         context.commit("setFilledForms", response.data);
       } catch (e) {
-        console.log(e);
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
       }
     },
     async GET_TOKENS(context, payload) {
@@ -210,7 +248,11 @@ export default {
             context.commit("setTokenList", res.data);
           });
       } catch (e) {
-        console.log(e);
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
       }
     },
     async GENERATE_TOKENS(context, payload) {
@@ -224,10 +266,18 @@ export default {
           })
           .then(res => {
             context.commit("setTokenList", res.data);
+            context.commit("POST_ERROR", {
+              status: "success",
+              message: "Tokens created successfully",
+              timestamp: Date.now()
+            });
           });
       } catch (e) {
-        console.log(e);
-        throw "error";
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
       }
     },
     async BLOCK_RESUME_FORM(context, formId) {
@@ -244,9 +294,18 @@ export default {
         );
         if (response.data.switched) {
           context.commit("switchForm", formId);
+          context.commit("POST_ERROR", {
+            status: "success",
+            message: "Survey status changed",
+            timestamp: Date.now()
+          });
         }
       } catch (e) {
-        console.log(e);
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
         throw "error";
       }
     },
@@ -259,9 +318,18 @@ export default {
             if (res.data === "archived") {
               console.log("Survey archived");
             }
+            context.commit("POST_ERROR", {
+              status: "success",
+              message: "Survey archived",
+              timestamp: Date.now()
+            });
           });
       } catch (e) {
-        console.log(e);
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
         throw "error";
       }
     }

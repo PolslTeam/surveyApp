@@ -1,15 +1,17 @@
 <template>
   <v-app>
     <app-bar />
+    <popup-notification />
     <router-view class="main-wrapper" />
   </v-app>
 </template>
 
 <script>
 import AppBar from "@/components/AppBar";
+import PopupNotification from "@/components/PopupNotification";
 export default {
   name: "Home",
-  components: { AppBar }
+  components: { PopupNotification, AppBar }
 };
 </script>
 <style>
