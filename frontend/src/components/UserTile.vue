@@ -9,6 +9,7 @@
         <v-btn
             :color="user.is_blocked ? 'green' : 'red'"
             @click="blockUnblock(user.user_id)"
+            :disabled="user.userType === 1"
         >
             {{ user.is_blocked ? "Unblock" : "Block" }} user
         </v-btn>
