@@ -184,12 +184,6 @@ export default {
       this.setForm(payload);
     },
     async setForm(payload) {
-      payload = {
-        ...payload,
-        respondent: this.anonymous
-          ? this.anonField
-          : sessionStorage.getItem("loginToken")
-      };
       await this.$store.dispatch("SET_FORM", payload);
       await this.$store.dispatch("GET_MY_ANSWERS", payload);
     },
@@ -218,7 +212,12 @@ export default {
         })
       };
       await this.$store.dispatch("CREATE_SURVEY", payload).then(async () => {
-        await this.setForm({ formId: this.form.form_id });
+        await this.setForm({
+          formId: this.form.form_id,
+          anonToken: this.anonymous
+              ? this.anonField
+              : sessionStorage.getItem("loginToken")
+        });
       });
     }
   },
