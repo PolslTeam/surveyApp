@@ -10,6 +10,11 @@ const routes = [
     component: () => import("../views/Dashboard.vue")
   },
   {
+    path: "/admin",
+    name: "AdminDashboard",
+    component: () => import("../views/AdminDashboard.vue")
+  },
+  {
     path: "/create-form",
     name: "CreateForm",
     component: () => import("../views/CreateForm.vue")
