@@ -25,6 +25,7 @@
                   placeholder=" "
                   persistent-placeholder
                   :rules="[customRules.required]"
+                  @keypress.enter="login(email, password)"
               />
               <v-checkbox
                   v-model="remember"
