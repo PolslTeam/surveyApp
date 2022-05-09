@@ -51,12 +51,17 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({message: 'Invalid credentials.'})
     }
 
+    if (user.is_blocked) {
+      return res.status(400).json({message: 'User is blocked.'})
+    }
+
     const token = jwt.sign({id: user.user_id}, process.env.JWT_SECRET);
     res.status(200).json({
       token,
       user: {
         id: user.user_id,
-        email: user.email
+        email: user.email,
+        userType: user.userType
       }
     });
   } catch (e) {

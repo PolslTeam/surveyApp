@@ -18,6 +18,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.DATE,
       allowNull: true
     },
+    /*
+      0 - regular
+      1 - admin
+    */
     userType: {
       type: DataTypes.INTEGER,
       allowNull: true
