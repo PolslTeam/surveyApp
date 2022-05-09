@@ -10,7 +10,8 @@ export default {
     areMyAnswersLoading: true,
     isAlreadyFilled: false,
     loginRequired: true,
-    tokenList: []
+    tokenList: [],
+    editForm: []
   },
   mutations: {
     setEditFormFields(state, res) {
@@ -55,14 +56,15 @@ export default {
     },
     fillForm(state, answers) {
       if (!state.form.fields) return;
-      for(const field of state.form.fields) {
-        const answer = answers.find(ans => [
+      for (const field of state.form.fields) {
+        const answer = answers.find(ans =>
+          [
             field.text_field_id,
             field.slider_field_id,
-            field.singlechoice_field_id,
+            field.singlechoice_field_id
           ].includes(ans.field_id)
         );
-        if(!answer) continue;
+        if (!answer) continue;
         field.answer = answer.answer;
       }
     },
@@ -85,6 +87,28 @@ export default {
           params: { id, formId }
         });
         context.commit("setEditFormFields", response.data);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async EDIT_FORM(context, payload) {
+      try {
+        await Vue.prototype.backendApi
+          .put("/editForm", {
+            settings: payload.settings,
+            fields: payload.fields,
+            formId: payload.formId
+          })
+          .then(res => {
+            if (payload.numberOfTokens != null) {
+              const formId = res.data._id;
+              context.dispatch("GENERATE_TOKENS", {
+                formId: formId,
+                numberOfTokens: payload.numberOfTokens
+              });
+            }
+            context.commit("addForm", res.data.form);
+          });
       } catch (e) {
         console.log(e);
       }
@@ -274,6 +298,9 @@ export default {
     },
     getTokens(state) {
       return state.tokenList;
+    },
+    editSurvey(state) {
+      return state.editForm;
     }
   }
 };
