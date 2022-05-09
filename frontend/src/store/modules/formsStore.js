@@ -117,6 +117,7 @@ export default {
     async SET_FORM(context, payload) {
       try {
         context.commit("setIsFormLoading", true);
+        context.commit("setForm", {});
         const response = await Vue.prototype.backendApi.get(
           `/survey/${payload.formId}`,
           {
