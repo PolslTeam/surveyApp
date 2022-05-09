@@ -10,12 +10,14 @@ const { models } = require('../db'),
     Text_field = models.Text_fields,
     Singlechoice_field = models.Singlechoice_fields,
     Slider_field = models.Slider_fields,
-    Choice_options = models.Choice_options
+    Choice_options = models.Choice_options,
+    Token = models.Tokens
 
 router.post('/survey', async(req,res) => {
     try {
         const {formId, respondent, answers} = req.body;
         let userId;
+        let tokenId;
         const form = await Form.findOne({where: {form_id: formId}});
 
         //validation
@@ -32,7 +34,16 @@ router.post('/survey', async(req,res) => {
             }
             userId = verified.id;
         } else {
-            //TO-DO Anon validation
+            const token = await Token.findOne({
+                where: {form_id: formId, token: respondent}
+            });
+            if (!token) {
+                return res.status(403).json({message: "Token is invalid!"});
+            } else {
+                tokenId = token.token_id;
+                await token.update({used: true});
+                await token.save();
+            }
         }
         if (form.answer_limit) {
             const answerCount = await Survey.count({where: {form_id: formId}});
@@ -43,7 +54,7 @@ router.post('/survey', async(req,res) => {
         const newSurvey = await Survey.create({
             form_id: formId,
             user_id: userId ? userId : null,
-            token_id: !userId ? respondent : null
+            token_id: !userId ? tokenId : null
         });
 
         for (const answer of answers) {
@@ -82,7 +93,7 @@ router.get('/survey/:formId/myAnswers', async(req,res) => {
     try {
         const { formId: form_id } = req.params;
         const { respondent } = req.query;
-        let user_id;
+        let user_id, tokenId;
         const form = await Form.findOne({where: {form_id}});
   
         if (!form) {
@@ -96,11 +107,20 @@ router.get('/survey/:formId/myAnswers', async(req,res) => {
             }
             user_id = verified.id;
         } else {
-            //TO-DO Anon validation
+            userId = req.query.anonToken;
+            const token = await Token.findOne({where: {form_id: form_id, token: userId}});
+            if (!token) {
+                return res.status(403).json({message: "Token is invalid!"});
+            }
+            tokenId = token.token_id;
         }
-  
+
+        const whereStatement = user_id ? {user_id} : {token_id: tokenId}
         const filledSurvey = await Survey.findOne({
-            where: { form_id, user_id }
+            where: {
+                form_id,
+                ...whereStatement
+            }
         });
   
         if(!filledSurvey) {
@@ -158,7 +178,11 @@ router.get('/survey/:formId', async(req,res) => {
             userId = verified.id;
             if (!verified) return res.status(402).json({message: "Not authorized"});
         } else if (anonToken) {
-            //TO-DO Anon validation
+            const token = await Token.findOne({where: {form_id: formId, token: anonToken}});
+            if (!token) {
+                return res.status(403).json({message: "Token is invalid!"});
+            }
+            userId = anonToken;
         } else {
             return res.status(403).json({message: "Token is required to fill this survey!"});
         }
