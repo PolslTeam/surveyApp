@@ -29,6 +29,11 @@ module.exports = function(sequelize, DataTypes) {
         model: 'Tokens',
         key: 'token_id'
       }
+    },
+    answer_ts: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: Date.now()
     }
   }, {
     sequelize,
