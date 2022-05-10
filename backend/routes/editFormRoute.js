@@ -5,12 +5,12 @@ const router = require('express').Router(),
   Text_field = models.Text_fields,
   Singlechoice_field = models.Singlechoice_fields,
   Slider_field = models.Slider_fields,
-  Choice_options = models.Choice_options
+  Choice_options = models.Choice_options,
+  Tokens = models.Tokens
 
 router.get("/getForm", async (req, res) =>{
   try{
     const {user_id, form_id} = req.query;
-    // const owner = await User.findOne({_id: id});
     const formInstance = await Form.findOne({
       where: {
         form_id,
@@ -32,11 +32,13 @@ router.get("/getForm", async (req, res) =>{
       ]
     });
     const form = formInstance.toJSON();
-
     form.Singlechoice_fields = await Promise.all(form.Singlechoice_fields.map(async field => {
+      const options = await Choice_options.findAll({where: {singlechoice_field_id: field.singlechoice_field_id}});
+
       return {
         ...field,
-        options: await Choice_options.findAll({where: {singlechoice_field_id: field.singlechoice_field_id}}),
+        choices: options.sort((a, b) => (a.form_pos > b.form_pos) ? -1 : 1).map(item => { return item.option }),
+        choices_id: options.sort((a, b) => (a.form_pos > b.form_pos) ? -1 : 1).map(item => { return item.option_id })
       }
     }));
 
@@ -62,12 +64,31 @@ router.put("/editForm", async(req,res) => {
   }
 
   try {
-    const {settings, fields, user_id} = req.body;
+    const {settings, fields, form_id, fieldToRem} = req.body;
+
+    for (const item of fieldToRem){
+      if (item.type === 'slider') {
+        const found = await Slider_field.findOne({where: {slider_field_id: item.id}});
+        await found.destroy({transaction});
+      } else if (item.type === 'text') {
+        const found = await Text_field.findOne({where: {text_field_id: item.id}});
+        await found.destroy({transaction});
+      } else if (item.type === 'single choice' || item.type === 'list') {
+        const found = await Singlechoice_field.findOne({where: {singlechoice_field_id: item.id}})
+        const options = await Choice_options.findAll({where: {singlechoice_field_id: item.id}});
+        for (const option of options) {
+          await option.destroy({transaction});
+        }
+        await found.destroy();
+      } else if (item.type === 'option') {
+        const found = await Choice_options.findOne({where: {option_id: item.id}});
+        await found.destroy({transaction});
+      }
+    }
 
     const form = await Form.findOne({
       where: {
-        form_id,
-        user_id
+        form_id
       },
       include: [
         {
@@ -85,8 +106,15 @@ router.put("/editForm", async(req,res) => {
       ]
     });
 
+    if (settings.authenticationType === "logged") {
+      const tokens = await Tokens.findAll({where: {form_id: form_id}});
+      for (const token of tokens) {
+        await token.destroy({transaction});
+      }
+    }
+
     if(!settings.title)
-      return res.status(400).json({message: 'Missing title'});
+    return res.status(400).json({message: 'Missing title'});
 
     if(!fields.length)
       return res.status(400).json({message: 'Add at least 1 field'});
@@ -95,6 +123,14 @@ router.put("/editForm", async(req,res) => {
       return res.status(400).json({message: 'Missing authentication type'});
     settings.login_required = settings.authenticationType === 'logged';
 
+    await form.update({
+      title: settings.title,
+      description: settings.description,
+      login_required: settings.authenticationType === "logged",
+      start_date: settings.start_date,
+      end_date: settings.end_date,
+      answer_limit: settings.answer_limit
+    }, {transaction});
     for(const [form_pos, field] of Object.entries(fields)) {
       if(!field.question.length)
         return res400(form_pos, 'Empty question.');
@@ -113,31 +149,29 @@ router.put("/editForm", async(req,res) => {
           if (!field.text_field_id) {
             await Text_field.create(props, {transaction})
           } else {
-            const text = await Text_field.findOne({where: {text_field_id: field.text_field_id}})
+            const text = await Text_field.findOne({where: {text_field_id: field.text_field_id, form_id: form_id}})
             await text.update({
               question: field.question,
               min_length: field.min_length,
               form_pos,
               required: field.required
-            })
-            await text.save();
+            }, {transaction})
           }
           continue;
         case 'slider':
           if(isNaN(field.min) || isNaN(field.max) || field.min < 0 || field.max < 0 || field.max - field.min < 1)
             return res400(form_pos, 'Provide correct min/max values');
-          if (!field.text_field_id) {
+          if (!field.slider_field_id) {
             await Slider_field.create(props, {transaction});
           } else {
-            const slider = await Slider_field.findOne({where: {slider_field_id: field.slider_field_id}})
+            const slider = await Slider_field.findOne({where: {slider_field_id: field.slider_field_id, form_id: form_id}})
             await slider.update({
               question: field.question,
               min: field.min,
               max: field.max,
               form_pos,
               required: field.required
-            })
-            await slider.save();
+            }, {transaction})
           }
           continue;
 
@@ -152,43 +186,46 @@ router.put("/editForm", async(req,res) => {
               is_list: field.type === 'list',
               ...props
             }, {transaction});
-            for (const [option_pos, option] of Object.entries(field.choices))
-              await Choice_option.create({
+            for (const [option_pos, option] of Object.entries(field.choices)){
+            await Choice_options.create({
                 singlechoice_field_id,
                 option_pos,
                 option
               }, {transaction});
+            }
           } else {
-            const singlechoice = await Singlechoice_field.findOne({
-              singlechoice_field_id: field.singlechoice_field_id
-            });
+            const singlechoice = await Singlechoice_field.findOne( {where :{
+              singlechoice_field_id: field.singlechoice_field_id,
+              form_id: form_id
+            }});
             await singlechoice.update({
               is_list: field.type === 'list',
               question: field.question,
               form_pos: form_pos,
               required: field.required,
-            })
-            await singlechoice.save()
-            for (const option of Object.entries(field.choices))
-              if (!option.option_id) {
-                await Choice_option.create({
+            }, {transaction})
+            let n = 0;
+            for (const [index, choices] of Object.entries(field.choices)) {
+              if (!field.choices_id[index]) {
+                await Choice_options.create({
                   singlechoice_field_id: field.singlechoice_field_id,
-                  option_pos: option.option_pos,
-                  option: option.option
+                  option_pos: n,
+                  option: choices
                 }, {transaction});
               } else {
                 const foundOption = await Choice_options.findOne({
-                  where:{
+                  where: {
                     singlechoice_field_id: field.singlechoice_field_id,
-                    option_id: field.option_id
+                    option_id: field.choices_id[index]
                   }
                 })
                 await foundOption.update({
-                  option: option.option,
-                  option_pos: option.option_pos
-                })
-                await foundOption.save()
+                  option: choices,
+                  option_pos: n
+                }, {transaction})
+                n++
               }
+            }
           }
           continue;
 
