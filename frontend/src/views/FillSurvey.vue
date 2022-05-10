@@ -188,6 +188,8 @@ export default {
     },
     async setForm(payload) {
       await this.$store.dispatch("SET_FORM", payload);
+      if (!("form_id" in this.form))
+        await this.$router.push({ name: "Dashboard" });
       await this.$store.dispatch("GET_MY_ANSWERS", payload);
     },
     async submit() {
