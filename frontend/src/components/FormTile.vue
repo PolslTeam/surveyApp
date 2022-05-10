@@ -46,6 +46,17 @@
           <v-row>
             <v-col cols="6" sm="3" md="6" lg="12">
               <v-btn
+                :to="{
+                  name: 'CreateEditForm',
+                  params: { formId: survey.form_id, editing: true }
+                }"
+                :disabled="!allowEdit"
+                text
+                >Edit Form</v-btn
+              >
+            </v-col>
+            <v-col cols="6" sm="3" md="6" lg="12">
+              <v-btn
                 :disabled="!availableTokens"
                 color="accent"
                 @click="getTokensList(survey.form_id)"
