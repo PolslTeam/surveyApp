@@ -153,6 +153,7 @@ router.put("/editForm", async(req,res) => {
             await text.update({
               question: field.question,
               min_length: field.min_length,
+              max_length: field.max_length,
               form_pos,
               required: field.required
             }, {transaction})
