@@ -16,8 +16,9 @@
             "
           />
         </v-row>
-        <v-row v-if="field[setting.field] !== undefined">
+        <v-row>
           <v-text-field
+            v-if="field[setting.field]"
             v-model.number="field[setting.field]"
             outlined
             type="number"
