@@ -40,17 +40,35 @@ export default {
             60 * 60 * 24 * 30
           );
         }
+        context.commit("POST_ERROR", {
+          status: "success",
+          message: "Logged in successfully",
+          timestamp: Date.now()
+        });
         return response.data.user.userType;
       } catch (e) {
-        console.log(e);
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
         return -1;
       }
     },
     async REGISTER_USER(context, payload) {
       try {
         await Vue.prototype.backendApi.post("/register", payload);
+        context.commit("POST_ERROR", {
+          status: "success",
+          message: "Registered successfully",
+          timestamp: Date.now()
+        });
       } catch (e) {
-        console.log(e);
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
       }
     },
     LOG_OUT_USER(context) {
@@ -58,6 +76,11 @@ export default {
       context.commit("setUserLogged", false);
       sessionStorage.removeItem("loginToken");
       Vue.$cookies.remove("loginToken");
+      context.commit("POST_ERROR", {
+        status: "success",
+        message: "Logged out",
+        timestamp: Date.now()
+      });
     },
 
     async GET_USERS(context) {
@@ -68,7 +91,11 @@ export default {
         });
         context.commit("setUsers", response.data);
       } catch (e) {
-        console.log(e);
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
       }
     },
     async BLOCK_UNBLOCK_USER(context, user_id) {
@@ -83,12 +110,21 @@ export default {
         );
         if (response.data.switched) {
           context.commit("switchUser", user_id);
+          context.commit("POST_ERROR", {
+            status: "success",
+            message: "User blocked",
+            timestamp: Date.now()
+          });
         }
       } catch (e) {
-        console.log(e);
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
         throw "error";
       }
-    },
+    }
   },
   getters: {
     users(state) {
