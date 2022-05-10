@@ -5,7 +5,7 @@
         <v-card max-width="400" style="position:sticky; top: 20px;">
           <v-card-title> Form Settings </v-card-title>
           <v-card-text>
-            <v-form>
+            <v-form v-model="valid">
               <v-text-field
                 v-model="settings.title"
                 outlined
@@ -35,6 +35,7 @@
                 v-model.number="numberOfTokens"
                 @change="settings.answer_limit = numberOfTokens"
                 outlined
+                :rules="tokenRules"
                 type="number"
                 :min="1"
                 placeholder="Token numbers"
@@ -71,10 +72,17 @@
             </v-form>
           </v-card-text>
           <v-card-actions>
-            <v-btn v-if="this.$route.params.editing" @click="edit" color="info">
+            <v-btn
+              :disabled="!valid"
+              v-if="this.$route.params.editing"
+              @click="edit"
+              color="info"
+            >
               edit
             </v-btn>
-            <v-btn v-else @click="create" color="info"> create </v-btn>
+            <v-btn :disabled="!valid" v-else @click="create" color="info">
+              create
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -108,6 +116,12 @@ export default {
   name: "CreateEditForm",
   data() {
     return {
+      valid: true,
+      tokenRules: [
+        v => (v && v >= 1) || "You can't generate less than 1 token",
+        v =>
+          (v && v <= 100) || "You can't generate more than 100 tokens at once"
+      ],
       fillLimit: false,
       settings: {
         title: "",
