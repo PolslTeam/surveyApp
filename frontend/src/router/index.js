@@ -10,9 +10,9 @@ const routes = [
     component: () => import("../views/Dashboard.vue")
   },
   {
-    path: "/create-form",
-    name: "CreateForm",
-    component: () => import("../views/CreateForm.vue")
+    path: "/create-edit-form",
+    name: "CreateEditForm",
+    component: () => import("../views/CreateEditForm.vue")
   },
   {
     path: "/login",
