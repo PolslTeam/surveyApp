@@ -167,11 +167,12 @@ export default {
           formId: this.$route.params.formId
         })
         .then(() => {
-          if (this.settings.authenticationType === "token")
+          if (this.settings.authenticationType === "token") {
             this.$store.dispatch("GENERATE_TOKENS", {
               formId: this.$route.params.formId,
               numberOfTokens: this.numberOfTokens
             });
+          }
           this.$router.push({ name: "Dashboard" });
         });
     },

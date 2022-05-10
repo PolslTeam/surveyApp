@@ -125,17 +125,20 @@ export default {
           })
           .then(res => {
             context.commit("resetElementsToRemove");
-            if (payload.numberOfTokens != null) {
-              const formId = res.data._id;
-              context.dispatch("GENERATE_TOKENS", {
-                formId: formId,
-                numberOfTokens: payload.numberOfTokens
-              });
-            }
-            context.commit("addForm", res.data.form);
+            context.commit("POST_ERROR", {
+              status: "success",
+              message: "Form edited successfully",
+              timestamp: Date.now()
+            });
+            context.commit("addForm", res.data);
           });
       } catch (e) {
         console.log(e);
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
       }
     },
     async CREATE_FORM(context, payload) {
