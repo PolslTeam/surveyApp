@@ -22,7 +22,10 @@
             v-model.number="field[setting.field]"
             outlined
             type="number"
-            :min="0"
+            :min="(setting.field === 'max_length' && field.min_length) || 0"
+            :max="
+              (setting.field === 'min_length' && field.max_length) || undefined
+            "
             dense
           />
         </v-row>
@@ -39,7 +42,10 @@ export default {
   },
   data() {
     return {
-      settings: [{ field: "min_length", label: "minimum length", defValue: 3 }]
+      settings: [
+        { field: "min_length", label: "minimum length", defValue: 3 },
+        { field: "max_length", label: "maximum length", defValue: 8 }
+      ]
     };
   }
 };

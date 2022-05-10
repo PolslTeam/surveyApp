@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <v-row justify="center">
-      <v-col v-if="!isFormLoading && form.form_id" md="6">
+      <v-col v-if="!loading && form.form_id" md="6">
         <v-row>
           <v-col>
             <v-card class="px-3">
@@ -113,7 +113,7 @@
           </v-col>
         </v-row>
       </v-col>
-      <v-col v-else-if="anonymous" md="6">
+      <v-col v-else-if="!isLoginRequired" md="6">
         <v-card>
           <v-card-title class="justify-center">
             Please provide token to see this survey
@@ -129,6 +129,9 @@
           </v-card-actions>
         </v-card>
       </v-col>
+      <v-col v-else-if="!loading" class="red">
+        <v-row class="justify-center">error loading form</v-row>
+      </v-col>
     </v-row>
   </v-container>
 </template>
@@ -139,7 +142,6 @@ export default {
   name: "FillSurvey",
   data() {
     return {
-      anonymous: false,
       anonField: "",
       validForm: true,
       rules: {
@@ -168,11 +170,12 @@ export default {
       }
       if (!response) await this.$router.push({ name: "Login" });
       const payload = {
-        formId: this.$route.params.formId
+        formId: this.$route.params.formId,
+        respondent: token
       };
       this.setForm(payload);
     } else {
-      this.anonymous = true;
+      this.setForm({});
     }
   },
   methods: {
@@ -184,12 +187,6 @@ export default {
       this.setForm(payload);
     },
     async setForm(payload) {
-      payload = {
-        ...payload,
-        respondent: this.anonymous
-          ? this.anonField
-          : sessionStorage.getItem("loginToken")
-      };
       await this.$store.dispatch("SET_FORM", payload);
       await this.$store.dispatch("GET_MY_ANSWERS", payload);
     },
@@ -198,9 +195,9 @@ export default {
       if (!this.validForm) return;
       const payload = {
         formId: this.form.form_id,
-        respondent: this.anonymous
-          ? this.anonField
-          : sessionStorage.getItem("loginToken"),
+        respondent: this.isLoginRequired
+          ? sessionStorage.getItem("loginToken")
+          : this.anonField,
         answers: this.form.fields.map(field => {
           return {
             type: field.singlechoice_field_id
@@ -218,7 +215,14 @@ export default {
         })
       };
       await this.$store.dispatch("CREATE_SURVEY", payload).then(async () => {
-        await this.setForm({ formId: this.form.form_id });
+        const jwt = this.isLoginRequired
+          ? sessionStorage.getItem("loginToken")
+          : this.anonField;
+        await this.setForm({
+          formId: this.form.form_id,
+          respondent: jwt,
+          anonToken: jwt
+          });
       });
     }
   },

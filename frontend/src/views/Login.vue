@@ -25,6 +25,7 @@
                   placeholder=" "
                   persistent-placeholder
                   :rules="[customRules.required]"
+                  @keypress.enter="login(email, password)"
               />
               <v-checkbox
                   v-model="remember"
@@ -69,8 +70,16 @@ export default {
       if (this.isFormValid) {
         await this.$store
             .dispatch("LOGIN_USER", { email, password, remember: this.remember })
-            .then(async () => {
-              await this.$router.push({ name: "Dashboard" });
+            .then(async userType => {
+              switch(userType) {
+                case -1:
+                  break
+                case 1:
+                  await this.$router.push({ name: "AdminDashboard" });
+                  break;
+                default:
+                  await this.$router.push({ name: "Dashboard" });
+              }
             });
       } else {
         this.$refs.form.validate();

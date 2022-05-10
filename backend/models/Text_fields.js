@@ -27,6 +27,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: true
     },
+    max_length: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
     form_pos: {
       type: DataTypes.INTEGER,
       allowNull: true
