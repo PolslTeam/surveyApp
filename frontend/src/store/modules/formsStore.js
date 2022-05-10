@@ -11,7 +11,8 @@ export default {
     isAlreadyFilled: false,
     loginRequired: true,
     tokenList: [],
-    editForm: []
+    editForm: [],
+    elementsToRemove: []
   },
   mutations: {
     setEditFormFields(state, res) {
@@ -29,6 +30,14 @@ export default {
     },
     setForm(state, form) {
       state.form = form;
+    },
+    setElementsToRemove(state, elementToRemove) {
+      const temArr = state.elementsToRemove;
+      temArr.push(elementToRemove);
+      state.elementsToRemove = temArr;
+    },
+    resetElementsToRemove(state) {
+      state.elementsToRemove = [];
     },
     setIsFormLoading(state, isLoading) {
       state.isFormLoading = isLoading;
@@ -80,11 +89,21 @@ export default {
     }
   },
   actions: {
+    async ADD_TOREMOVE(context, payload) {
+      try {
+        context.commit("setElementsToRemove", payload);
+      } catch (e) {
+        console.log(e);
+      }
+    },
     async GET_FORM(context, formId) {
       try {
         const id = jwt_decode(sessionStorage.getItem("loginToken")).id;
         const response = await Vue.prototype.backendApi.get("/getForm", {
-          params: { id, formId }
+          params: {
+            user_id: id,
+            form_id: formId
+          }
         });
         context.commit("setEditFormFields", response.data);
       } catch (e) {
@@ -97,9 +116,11 @@ export default {
           .put("/editForm", {
             settings: payload.settings,
             fields: payload.fields,
-            formId: payload.formId
+            form_id: payload.formId,
+            fieldToRem: context.state.elementsToRemove
           })
           .then(res => {
+            context.commit("resetElementsToRemove");
             if (payload.numberOfTokens != null) {
               const formId = res.data._id;
               context.dispatch("GENERATE_TOKENS", {
