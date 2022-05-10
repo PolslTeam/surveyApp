@@ -16,7 +16,7 @@ export default {
   methods: {
     createSurvey() {
       this.$router.push({
-        name: "CreateForm"
+        name: "CreateEditForm"
       });
     }
   }

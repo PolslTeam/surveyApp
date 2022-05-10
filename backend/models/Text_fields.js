@@ -6,6 +6,11 @@ module.exports = function(sequelize, DataTypes) {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true
     },
+    type: {
+      type: DataTypes.STRING(4),
+      allowNull: false,
+      defaultValue: 'text'
+    },
     form_id: {
       type: DataTypes.UUID,
       allowNull: true,

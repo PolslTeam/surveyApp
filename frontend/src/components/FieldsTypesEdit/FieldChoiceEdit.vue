@@ -36,8 +36,16 @@ export default {
     addOption() {
       this.field.choices.push("");
     },
-    removeOption(idx) {
+    async removeOption(idx) {
+      if (this.field.choices_id[idx]) {
+        const payload = {
+          type: "option",
+          id: this.field.choices_id[idx]
+        };
+        await this.$store.dispatch("ADD_TOREMOVE", payload);
+      }
       this.$delete(this.field.choices, idx);
+      this.$delete(this.field.choices_id, idx);
     }
   },
   mounted() {

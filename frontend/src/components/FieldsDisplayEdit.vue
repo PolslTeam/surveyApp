@@ -40,7 +40,9 @@
                   :field="field"
                 />
                 <p v-else>{{ field.type }} type not handled</p>
-                <p v-if="error && error.form_pos == idx" class="red--text">{{error.message}}</p>
+                <p v-if="error && error.form_pos == idx" class="red--text">
+                  {{ error.message }}
+                </p>
               </v-col>
             </v-row>
           </v-card-text>
@@ -62,7 +64,21 @@ export default {
     error: Object
   },
   methods: {
-    removeField(idx) {
+    async removeField(idx) {
+      if (
+        this.fields[idx].slider_field_id ||
+        this.fields[idx].singlechoice_field_id ||
+        this.fields[idx].text_field_id
+      ) {
+        const payload = {
+          type: this.fields[idx].type,
+          id:
+            this.fields[idx].slider_field_id ||
+            this.fields[idx].singlechoice_field_id ||
+            this.fields[idx].text_field_id
+        };
+        await this.$store.dispatch("ADD_TOREMOVE", payload);
+      }
       this.$delete(this.fields, idx);
     }
   }

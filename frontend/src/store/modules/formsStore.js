@@ -10,7 +10,9 @@ export default {
     areMyAnswersLoading: true,
     isAlreadyFilled: false,
     loginRequired: true,
-    tokenList: []
+    tokenList: [],
+    editForm: [],
+    elementsToRemove: []
   },
   mutations: {
     setEditFormFields(state, res) {
@@ -28,6 +30,14 @@ export default {
     },
     setForm(state, form) {
       state.form = form;
+    },
+    setElementsToRemove(state, elementToRemove) {
+      const temArr = state.elementsToRemove;
+      temArr.push(elementToRemove);
+      state.elementsToRemove = temArr;
+    },
+    resetElementsToRemove(state) {
+      state.elementsToRemove = [];
     },
     setIsFormLoading(state, isLoading) {
       state.isFormLoading = isLoading;
@@ -79,14 +89,51 @@ export default {
     }
   },
   actions: {
+    async ADD_TOREMOVE(context, payload) {
+      try {
+        context.commit("setElementsToRemove", payload);
+      } catch (e) {
+        console.log(e);
+      }
+    },
     async GET_FORM(context, formId) {
       try {
         const id = jwt_decode(sessionStorage.getItem("loginToken")).id;
         const response = await Vue.prototype.backendApi.get("/getForm", {
-          params: { id, formId }
+          params: {
+            user_id: id,
+            form_id: formId
+          }
         });
         context.commit("setEditFormFields", response.data);
       } catch (e) {
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
+      }
+    },
+    async EDIT_FORM(context, payload) {
+      try {
+        await Vue.prototype.backendApi
+          .put("/editForm", {
+            settings: payload.settings,
+            fields: payload.fields,
+            form_id: payload.formId,
+            fieldToRem: context.state.elementsToRemove
+          })
+          .then(res => {
+            context.commit("resetElementsToRemove");
+            context.commit("POST_ERROR", {
+              status: "success",
+              message: "Form edited successfully",
+              timestamp: Date.now()
+            });
+            context.commit("addForm", res.data);
+          });
+      } catch (e) {
+        console.log(e);
         context.commit("POST_ERROR", {
           status: "error",
           message: e.response.data.message,
@@ -344,6 +391,9 @@ export default {
     },
     getTokens(state) {
       return state.tokenList;
+    },
+    editSurvey(state) {
+      return state.editForm;
     }
   }
 };
