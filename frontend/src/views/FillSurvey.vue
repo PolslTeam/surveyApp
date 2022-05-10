@@ -148,9 +148,10 @@ export default {
       }
     };
   },
-  async created() {
+  async mounted() {
     const formId = this.$route.params.formId;
     await this.$store.dispatch("CHECK_SURVEY_TYPE", formId);
+    if (this.isLoginRequired == null) await this.$router.push({ name: "Dashboard" });
     if (this.isLoginRequired) {
       let response = null;
       const token = sessionStorage.getItem("loginToken");
@@ -171,8 +172,6 @@ export default {
         respondent: token
       };
       this.setForm(payload);
-    } else {
-      this.setForm({});
     }
   },
   methods: {

@@ -223,7 +223,12 @@ export default {
         );
         context.commit("setLoginRequired", response.data);
       } catch (e) {
-        console.log(e);
+        context.commit("setLoginRequired", null);
+        context.commit("POST_ERROR", {
+          status: "error",
+          message: e.response.data.message,
+          timestamp: Date.now()
+        });
       }
     },
     async GET_MY_ANSWERS(context, payload) {
