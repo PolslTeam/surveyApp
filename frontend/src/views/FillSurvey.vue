@@ -129,9 +129,6 @@
           </v-card-actions>
         </v-card>
       </v-col>
-      <v-col v-else-if="!loading" class="red">
-        <v-row class="justify-center">error loading form</v-row>
-      </v-col>
     </v-row>
   </v-container>
 </template>
