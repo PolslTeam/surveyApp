@@ -19,7 +19,7 @@ export default {
     },
     switchUser(state, user_id) {
       const user = state.users.find(user => user.user_id === user_id);
-      user.is_blocked = !user.is_blocked
+      user.is_blocked = !user.is_blocked;
     }
   },
   actions: {

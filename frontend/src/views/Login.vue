@@ -9,27 +9,27 @@
           <v-card-text>
             <v-form ref="form" v-model="isFormValid">
               <v-text-field
-                  v-model="email"
-                  outlined
-                  type="text"
-                  label="Email"
-                  placeholder=" "
-                  persistent-placeholder
-                  :rules="[customRules.required, customRules.email]"
+                v-model="email"
+                outlined
+                type="text"
+                label="Email"
+                placeholder=" "
+                persistent-placeholder
+                :rules="[customRules.required, customRules.email]"
               />
               <v-text-field
-                  v-model="password"
-                  outlined
-                  type="password"
-                  label="Password"
-                  placeholder=" "
-                  persistent-placeholder
-                  :rules="[customRules.required]"
-                  @keypress.enter="login(email, password)"
+                v-model="password"
+                outlined
+                type="password"
+                label="Password"
+                placeholder=" "
+                persistent-placeholder
+                :rules="[customRules.required]"
+                @keypress.enter="login(email, password)"
               />
               <v-checkbox
-                  v-model="remember"
-                  label="Remember me for 30 days"
+                v-model="remember"
+                label="Remember me for 30 days"
               ></v-checkbox>
             </v-form>
           </v-card-text>
@@ -59,9 +59,9 @@ export default {
       customRules: {
         required: value => !!value || "Field is required",
         email: value =>
-            !value ||
-            /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) ||
-            "E-mail is not valid"
+          !value ||
+          /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) ||
+          "E-mail is not valid"
       }
     };
   },
@@ -69,18 +69,18 @@ export default {
     async login(email, password) {
       if (this.isFormValid) {
         await this.$store
-            .dispatch("LOGIN_USER", { email, password, remember: this.remember })
-            .then(async userType => {
-              switch(userType) {
-                case -1:
-                  break
-                case 1:
-                  await this.$router.push({ name: "AdminDashboard" });
-                  break;
-                default:
-                  await this.$router.push({ name: "Dashboard" });
-              }
-            });
+          .dispatch("LOGIN_USER", { email, password, remember: this.remember })
+          .then(async userType => {
+            switch (userType) {
+              case -1:
+                break;
+              case 1:
+                await this.$router.push({ name: "AdminDashboard" });
+                break;
+              default:
+                await this.$router.push({ name: "Dashboard" });
+            }
+          });
       } else {
         this.$refs.form.validate();
       }

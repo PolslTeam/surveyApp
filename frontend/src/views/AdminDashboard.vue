@@ -21,7 +21,7 @@
         <v-container class="dashboard-main">
           <v-row v-for="user of users" :key="user.id">
             <v-col>
-                <user-tile :user="user" />
+              <user-tile :user="user" />
             </v-col>
           </v-row>
         </v-container>

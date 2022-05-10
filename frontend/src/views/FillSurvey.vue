@@ -222,7 +222,7 @@ export default {
           formId: this.form.form_id,
           respondent: jwt,
           anonToken: jwt
-          });
+        });
       });
     }
   },
